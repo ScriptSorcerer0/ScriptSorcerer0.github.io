@@ -18,7 +18,7 @@ const naicCodeOutput = document.querySelector(".naic-code");
 
 let currentCountryName = "";
 
-//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
+//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
 //Loop through all countries
 countries.forEach((country) => {
   country.addEventListener("click", function (e) {
@@ -104,7 +104,7 @@ pivotBtn.addEventListener("click", async () => {
       method: "POST",
       headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer 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`, // Replace with your API key
+          "Authorization": `Bearer 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`,
       },
       body: JSON.stringify({
           model: "gpt-3.5-turbo",
