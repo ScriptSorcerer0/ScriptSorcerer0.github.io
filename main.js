@@ -1,3 +1,13 @@
+let apiKey = "";
+window.addEventListener("load", () => {
+  apiKey = prompt("Please enter your OpenAI API key:");
+  if (!apiKey || apiKey.trim() === "") {
+    alert("API key is required to proceed.");
+    throw new Error("API key is missing. The application cannot proceed.");
+  }
+  console.log("API Key received and set.");
+});
+
 //Get needed element rom the DOM
 const map = document.querySelector("svg");
 const countries = document.querySelectorAll("path");
@@ -18,7 +28,6 @@ const naicCodeOutput = document.querySelector(".naic-code");
 
 let currentCountryName = "";
 
-//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
 //Loop through all countries
 countries.forEach((country) => {
   country.addEventListener("click", function (e) {
@@ -104,7 +113,7 @@ pivotBtn.addEventListener("click", async () => {
       method: "POST",
       headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer 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`,
+          "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
           model: "gpt-3.5-turbo",
