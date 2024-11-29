@@ -1,17 +1,3 @@
-let apiKey = "";
-
-// Ensure this runs after the page is fully loaded
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    apiKey = prompt("Please enter your OpenAI API key:");
-    if (!apiKey || apiKey.trim() === "") {
-      alert("API key is required to proceed.");
-      throw new Error("API key is missing. The application cannot proceed.");
-    }
-    console.log("API Key received and set:", apiKey);
-  }, 200); // Use a small delay to ensure the DOM is completely loaded
-});
-
 //Get needed element rom the DOM
 const map = document.querySelector("svg");
 const countries = document.querySelectorAll("path");
@@ -100,7 +86,19 @@ countries.forEach((country) => {
       });
   });
 });
+let apiKey = "";
 
+// Ensure this runs after the page is fully loaded
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    apiKey = prompt("Please enter your OpenAI API key:");
+    if (!apiKey || apiKey.trim() === "") {
+      alert("API key is required to proceed.");
+      throw new Error("API key is missing. The application cannot proceed.");
+    }
+    console.log("API Key received and set:", apiKey);
+  }, 200); // Use a small delay to ensure the DOM is completely loaded
+});
 pivotBtn.addEventListener("click", async () => {
   const inputText = userInput.value.trim();
   
