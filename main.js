@@ -1,11 +1,15 @@
 let apiKey = "";
+
+// Ensure this runs after the page is fully loaded
 window.addEventListener("load", () => {
-  apiKey = prompt("Please enter your OpenAI API key:");
-  if (!apiKey || apiKey.trim() === "") {
-    alert("API key is required to proceed.");
-    throw new Error("API key is missing. The application cannot proceed.");
-  }
-  console.log("API Key received and set.");
+  setTimeout(() => {
+    apiKey = prompt("Please enter your OpenAI API key:");
+    if (!apiKey || apiKey.trim() === "") {
+      alert("API key is required to proceed.");
+      throw new Error("API key is missing. The application cannot proceed.");
+    }
+    console.log("API Key received and set:", apiKey);
+  }, 200); // Use a small delay to ensure the DOM is completely loaded
 });
 
 //Get needed element rom the DOM
