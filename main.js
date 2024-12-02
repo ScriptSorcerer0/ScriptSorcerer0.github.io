@@ -86,60 +86,52 @@ countries.forEach((country) => {
       });
   });
 });
-let apiKey = "";
+// Sample list of words for the dropdown
+const wordList = ["Agriculture", "Construction", "Manufacturing", "Technology", "Healthcare", "Finance", "Education", "Retail", "Logistics", "Energy"];
 
-// Ensure this runs after the page is fully loaded
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    apiKey = prompt("Please enter your OpenAI API key:");
-    if (!apiKey || apiKey.trim() === "") {
-      alert("API key is required to proceed.");
-      throw new Error("API key is missing. The application cannot proceed.");
-    }
-    console.log("API Key received and set:", apiKey);
-  }, 200); // Use a small delay to ensure the DOM is completely loaded
+// Populate the dropdown list
+wordList.forEach(word => {
+    const option = document.createElement("div");
+    option.classList.add("dropdown-item");
+    option.innerText = word;
+    dropdownList.appendChild(option);
+
+    option.addEventListener("click", () => {
+        userInput.value = word; // Set the input value to the selected word
+        dropdownList.classList.add("hide"); // Hide the dropdown after selection
+    });
 });
-pivotBtn.addEventListener("click", async () => {
-  const inputText = userInput.value.trim();
-  
-  if (!inputText) {
-      naicCodeOutput.innerText = "Please enter a valid input.";
-      return;
-  }
-  
-  // Show a loading indicator while processing
-  naicCodeOutput.innerText = "Processing...";
-  
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-              {
-                  role: "user",
-                  content: `Identify a six digit NAIC code ONLY between 31 and 33 for the following industry description, or indicate if the input is invalid or unclear: "${inputText}". If it is not between 31-33, mention that. It should only be Respond with the format "NAIC Code: [Code], [Industry Description]."`,
-              },
-          ],
-          max_tokens: 50,
-      }),
-  });
-  
-  if (!response.ok) {
-      throw new Error("Failed to fetch from OpenAI API");
-  }
-  
-  const data = await response.json();
-  const responseContent = data.choices[0].message.content.trim();
+
+// Show filtered dropdown on user input
+userInput.addEventListener("input", () => {
+    const filter = userInput.value.toLowerCase();
+    dropdownList.classList.remove("hide");
+
+    // Filter dropdown items based on input
+    document.querySelectorAll(".dropdown-item").forEach(item => {
+        if (item.innerText.toLowerCase().includes(filter)) {
+            item.style.display = "block";
+        } else {
+            item.style.display = "none";
+        }
+    });
+
+    if (!filter) {
+        dropdownList.classList.add("hide");
+    }
+});
+
+// Hide dropdown when clicking outside
+window.addEventListener("click", (e) => {
+    if (!userInput.contains(e.target) && !dropdownList.contains(e.target)) {
+        dropdownList.classList.add("hide");
+    }
+});
 
   // Extract NAIC code and description if valid
   let naicCode = "";
   let industryDescription = "";
-
+try{
   if (responseContent.startsWith("NAIC Code:")) {
       const match = responseContent.match(/NAIC Code:\s*([0-9]+),\s*(.+)/);
       if (match) {
@@ -230,7 +222,7 @@ pivotBtn.addEventListener("click", async () => {
       }
     catch(error){
       console.error("oops")
-    }})
+    };
 
 //Add click event to side panel close button 
 closeBtn.addEventListener("click", () => {
