@@ -138,7 +138,7 @@ function selectOption(value) {
         loading.classList.add("hide");
         container.classList.remove("hide");
       } catch (error) {
-        loading.innerText = "Failed to load country data.";
+        loading.innerText = "";
         console.error(error);
       }
     });
