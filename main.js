@@ -13,12 +13,29 @@
   const countryFlagOutput = document.querySelector(".country-flag");
   const cityOutput = document.querySelector(".city");
   const userInput = document.querySelector(".user-input");
+  const aiuserInput = document.querySelector(".aiuser-input");
+  const pivotBtn = document.querySelector(".pivot-btn");
   const aipivotBtn = document.querySelector(".aipivot-btn");
   const naicCodeOutput = document.querySelector(".naic-code");
   let industries = [];
+  let naicsData = [];
   let currentCountryName = "";
   let zoomValue = 100;
 
+
+  async function loadNAICSData() {
+    try {
+      const naicsResponse = await fetch("NAICS.xlsx");
+      const naicsBuffer = await naicsResponse.arrayBuffer();
+      const naicsWorkbook = XLSX.read(naicsBuffer, { type: "array" });
+      const naicsSheet = naicsWorkbook.Sheets[naicsWorkbook.SheetNames[0]];
+      naicsData = XLSX.utils.sheet_to_json(naicsSheet); // Populate global variable
+      console.log("NAICS Data Loaded:", naicsData);
+    } catch (error) {
+      console.error("Error loading NAICS data:", error);
+    }
+  }
+  
 // Load industries from NAIC.xlsx
 async function loadIndustries() {
   try {
@@ -129,14 +146,12 @@ function selectOption(value) {
 
   // Handle AI functionality
   aipivotBtn.addEventListener("click", async () => {
-    const inputText = userInput.value.trim();
-    if (!inputText) {
-      naicCodeOutput.innerText = "Please enter a valid input.";
-      return;
-    }
+    const inputText = aiuserInput.value.trim();
+    console.log("Trimmed Input Text:", inputText);
 
     try {
       naicCodeOutput.innerText = "Processing...";
+      
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -145,20 +160,51 @@ function selectOption(value) {
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: `Identify NAIC code for: "${inputText}".` }],
+          messages: [{
+            role: "user",
+            content: `Identify a six digit NAIC code for the following industry description: "${inputText}". You should only respond with the format "NAIC Code: [Code], [Industry Description]."`
+          }],
           max_tokens: 50,
         }),
       });
-
+    
       if (!response.ok) throw new Error("Failed to fetch OpenAI API.");
+      console.log(inputText)
       const data = await response.json();
       const result = data.choices[0].message.content.trim();
-      naicCodeOutput.innerText = result;
+      console.log(result)
+      // Process the response
+      if (result.startsWith("NAIC Code:")) {
+        const match = result.match(/NAIC Code:\s*([0-9]+),\s*(.+)/);
+        if (match) {
+          const naicCode = match[1]; // Extract the full code
+          const industryDescription = match[2].replace(/\s*\[.*?\]$/, "").trim(); // Clean up description
+    
+          // Check if the first two digits are between 31 and 33
+          if (parseInt(naicCode.substring(0, 2)) >= 31 && parseInt(naicCode.substring(0, 2)) <= 33) {
+            // Truncate NAIC code to four digits
+            const truncatedNaicCode = naicCode.substring(0, 4) + "00";
+            console.log("Truncated NAIC Code:", truncatedNaicCode);
+    
+            // Call submitPivot with the truncated NAIC code
+            await submitAIPivot(truncatedNaicCode);
+            return;
+          } else {
+            naicCodeOutput.innerText = "The identified NAIC code is not within the range 31-33.";
+          }
+        } else {
+          naicCodeOutput.innerText = "Failed to parse the response from OpenAI.";
+        }
+      } else {
+        naicCodeOutput.innerText = "Response does not contain a valid NAIC code.";
+      }
     } catch (error) {
       naicCodeOutput.innerText = "Error processing the request.";
       console.error(error);
     }
-  });
+  }
+)
+    
 
   // Close side panel
   closeBtn.addEventListener("click", () => {
@@ -187,6 +233,53 @@ function selectOption(value) {
       if (zoomValue === 100) zoomOutBtn.disabled = true;
     }
   });
+  async function submitAIPivot(truncatedNaicCode) {
+    if (!truncatedNaicCode) {
+      naicCodeOutput.innerText = "Invalid NAIC code provided.";
+      return;
+    }
+  
+    try {
+      const countryFilePath = `countries/${currentCountryName}.xlsx`;
+      const countryResponse = await fetch(countryFilePath);
+      if (!countryResponse.ok) {
+        throw new Error(`Country file not found: ${countryFilePath}`);
+      }
+      const countryBuffer = await countryResponse.arrayBuffer();
+      const countryWorkbook = XLSX.read(countryBuffer, { type: "array" });
+      const countrySheet = countryWorkbook.Sheets[countryWorkbook.SheetNames[0]];
+      const countryData = XLSX.utils.sheet_to_json(countrySheet);
+  
+      const matchingRows = countryData.filter(row => String(row["NAICS Code 2"]).trim() === truncatedNaicCode);
+  
+      if (matchingRows.length === 0) {
+        naicCodeOutput.innerText = `No matches found for NAIC Code ${truncatedNaicCode} in ${currentCountryName}.`;
+        return;
+      }
+  
+      const topScores = matchingRows
+        .map(row => ({
+          score: parseFloat(row["Final Pivot Score"]),
+          naicsCode1: row["NAICS Code 1"],
+        }))
+        .filter(entry => !isNaN(entry.score))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+  
+      const resultOutput = topScores.map(({ score, naicsCode1 }) => {
+        const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === naicsCode1);
+        const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
+        return `Score: ${score.toFixed(3)}, NAICS Code 1: ${naicsCode1}, Description: ${description}`;
+      }).join("\n\n");
+  
+      naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${truncatedNaicCode} in ${currentCountryName}:\n\n${resultOutput}`;
+    } catch (error) {
+      naicCodeOutput.innerText = `An error occurred: ${error.message}`;
+      console.error(error);
+    }
+  }
+  
+  
   async function submitPivot() {
     const inputDescription = userInput.value.trim();
     if (!inputDescription) {
@@ -266,9 +359,10 @@ function selectOption(value) {
   // Prompt for API key on page load
   let apiKey = "";
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
   // Load industries immediately, regardless of API key
   loadIndustries();
+  await loadNAICSData();
 
   // Prompt for API key and handle AI-specific input visibility
   setTimeout(() => {
@@ -289,6 +383,6 @@ window.addEventListener("load", () => {
     // Show the AI-related input if the API key is provided
     const aiInputSection = document.getElementById("ai-input-section");
     if (aiInputSection) aiInputSection.classList.remove("hidden");
+    console.log('yes')
   }, 200); // Use a small delay to ensure the DOM is completely loaded
 });
-
