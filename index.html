@@ -968,12 +968,22 @@
       <h1 class="country-name">Germany</h1>
       <img src="./flag.png" class="country-flag">
       <ul>
+        
         <li>
-            <strong>Pivot To Industry:</strong>
-            <input type="text" class="user-input" placeholder="Type here..." />
-            <button class="pivot-btn">Pivot</button>
-            <span class="naic-code"></span>
+          <strong>Pivot To Industry:</strong>
+          <input type="text" class="user-input" placeholder="Type here..." onfocus="showDropdown()" oninput="filterOptions(this.value)" />
+          <select class="dropdown hidden" size="5" onchange="selectOption(this.value)">
+          </select>
+          <button class="pivot-btn" onclick="submitPivot()">Pivot</button>
+          <span class="naic-code"></span>
         </li>
+        <li id="ai-input-section" class="hidden">
+          <strong>Don't know what you are looking for? AI will find your industry here:</strong>
+          <input type="text" class="user-input" placeholder="Type here..." />
+          <button class="aipivot-btn">Pivot</button>
+          <span class="naic-code"></span>
+      </li>
+        
         <li>
             <strong>Capital City:</strong>
             <span class="city"></span>

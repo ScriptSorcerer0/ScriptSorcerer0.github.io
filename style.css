@@ -95,6 +95,10 @@ path:hover {
   cursor: pointer;
 }
 
+.hidden {
+  display: none;
+}
+
 .loading {
   position: absolute;
   top: 50%;
