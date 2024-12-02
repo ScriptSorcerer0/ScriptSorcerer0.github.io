@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAICS API Lookup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .error {
+      color: red;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>NAICS API Lookup</h1>
+  <p>Use the query parameters <code>?country=CountryName&naics_code=XXXXXX</code> to fetch results.</p>
+  <div id="output"></div>
+
+  <script>
+    // Function to get query parameters from the URL
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        country: params.get("country"),
+        naics_code: params.get("naics_code")
+      };
+    }
+
+    // Function to fetch and display data
+    async function fetchData() {
+      const { country, naics_code } = getQueryParams();
+      const output = document.getElementById("output");
+
+      // Validate input
+      if (!country || !naics_code) {
+        output.innerHTML = `<p class="error">Missing 'country' or 'naics_code' query parameters.</p>`;
+        return;
+      }
+
+      try {
+        // URL for the country's JSON file
+        const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
+
+        // Fetch the country's JSON file
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Country '${country}' not found or failed to load.`);
+        }
+
+        const countryData = await response.json();
+
+        // Filter rows for the given NAICS Code
+        const filteredData = countryData.filter(row => String(row["NAICS Code 2"]).trim() === String(naics_code).trim());
+
+        // Sort by Final Pivot Score and get the top 5
+        const sortedData = filteredData
+          .sort((a, b) => b["Final Pivot Score"] - a["Final Pivot Score"])
+          .slice(0, 5);
+
+        // Check if results exist
+        if (sortedData.length === 0) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
+        }
+
+        // Create result display
+        const resultsHtml = sortedData.map(row => `
+          <div class="result">
+            <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
+            <p><strong>Final Pivot Score:</strong> ${row["Final Pivot Score"]}</p>
+          </div>
+        `).join("");
+
+        output.innerHTML = `
+          <h2>Results for ${country} (NAICS Code: ${naics_code})</h2>
+          ${resultsHtml}
+        `;
+      } catch (error) {
+        output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        console.error(error);
+      }
+    }
+
+    // Fetch data on page load
+    fetchData();
+  </script>
+</body>
+</html>
