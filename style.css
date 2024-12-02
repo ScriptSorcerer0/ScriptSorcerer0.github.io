@@ -1,285 +1,182 @@
-/* General styles */
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: sans-serif;
   color: #fff;
-  background-color: #151218;
+}
+
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-/* Custom Scrollbar */
+/*Custom Scrollbar Design*/
+/* width */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
+/* Track */
 ::-webkit-scrollbar-track {
   background: #2d2733;
 }
 
+/* Handle */
 ::-webkit-scrollbar-thumb {
   background: #555;
-  border-radius: 5px;
 }
 
+/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #dcbfff;
 }
 
-/* World Map */
 .world-map {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: max-content;
+  height: max-content;
+  min-height: 30em;
+  background-color: #151218;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #151218;
 }
 
 svg {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
 }
 
 path {
   fill: #443d4b;
   stroke: #dcbfff;
-  transition: fill 0.2s ease-in-out;
+  transition: 100ms;
 }
 
 path:hover {
   fill: #c99aff;
 }
 
-/* Side Panel */
 .side-panel {
   position: fixed;
   background-color: #1d1a20;
+  padding: 2em;
   top: 0;
   left: -30em;
   width: 100%;
   max-width: 30em;
   height: 100vh;
-  padding: 2em;
-  overflow-y: auto;
+  transition: 600ms cubic-bezier(0.77, 0, 0.18, 1);
+  overflow: scroll;
   z-index: 1;
-  transition: left 0.6s cubic-bezier(0.77, 0, 0.18, 1);
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.side-panel-open {
-  left: 0;
 }
 
 .side-panel .container {
-  padding-top: 2em;
+  padding-block: 2em;
+  transition: 200ms ease-out;
 }
 
-/* Close Button */
+/*Dynamic classes for JavaScript*/
+.side-panel-open {left: 0;}
+.hide {opacity: 0;}
+
 .close-btn {
   position: absolute;
-  top: 1em;
-  right: 1em;
-  width: 2.5em;
-  height: 2.5em;
-  background-color: #443d4b;
-  color: #fff;
+  top: 0;
+  right: 0;
+  width: 5em;
+  height: 5em;
   border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.5em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.close-btn:hover {
-  background-color: #c99aff;
-}
-
-/* Country Name */
-.country-name {
-  font-size: 1.8em;
-  font-weight: bold;
-  color: #dcbfff;
-  text-align: center;
-  margin-bottom: 1em;
-}
-
-/* Country Flag */
-.country-flag {
-  display: block;
-  width: 80%;
-  max-width: 15em;
-  margin: 0 auto 1.5em;
-  border: 1px solid #dcbfff;
-  border-radius: 10px;
-}
-
-/* List Items */
-.side-panel ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.side-panel ul li {
-  margin-bottom: 1.5em;
-}
-
-.side-panel ul li strong {
-  display: block;
-  font-size: 1.1em;
-  color: #dcbfff;
-  margin-bottom: 0.5em;
-}
-
-/* Inputs and Dropdowns */
-.user-input,
-.aiuser-input {
-  width: 100%;
-  padding: 0.8em;
-  font-size: 1em;
-  border: 1px solid #555;
-  border-radius: 5px;
-  background-color: #2d2733;
-  color: #fff;
-  margin-bottom: 0.5em;
-  outline: none;
-}
-
-.user-input:focus,
-.aiuser-input:focus {
-  border-color: #dcbfff;
-}
-
-.dropdown {
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  background-color: #2d2733;
-  border: 1px solid #555;
-  border-radius: 5px;
-  display: none;
-  position: relative;
-  margin-bottom: 0.5em;
-  z-index: 10;
-}
-
-.dropdown .option {
-  padding: 0.8em;
-  font-size: 1em;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.dropdown .option:hover {
-  background-color: #443d4b;
-}
-
-/* Buttons */
-.pivot-btn,
-.aipivot-btn {
-  display: inline-block;
-  width: 100%;
-  padding: 0.8em;
-  font-size: 1em;
-  border: none;
-  border-radius: 5px;
   background-color: #443d4b;
   color: #fff;
+  transition: 100ms;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.pivot-btn:hover,
-.aipivot-btn:hover {
-  background-color: #c99aff;
 }
 
 .hidden {
   display: none;
 }
 
-/* NAIC Code Output */
-.naic-code {
-  display: block;
-  margin-top: 0.5em;
-  font-size: 1em;
-  color: #dcbfff;
-}
-
-/* Loading */
 .loading {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #dcbfff;
-  font-size: 1.5em;
-  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  transition: 200ms;
 }
 
-/* Zoom Controls */
+.close-btn i {
+  font-size: 2em;
+}
+
+.close-btn:hover {
+  background-color: #c99aff;
+}
+
+.country-flag {
+  width: 60%;
+  max-width: 20em;
+  margin-block: 1em;
+}
+
+.side-panel .container > ul {
+  margin-top: 2em;
+  list-style: none;
+}
+
+.side-panel .container > ul > li {
+  margin-bottom: 2em;
+}
+
+.side-panel li {
+  margin-bottom: 1em;
+  font-size: 1.2em;
+}
+
+.side-panel ul ul {
+  margin-top: 1em;
+  font-size: 0.7em;
+  list-style: circle;
+  padding-left: 2em;
+}
+
+.side-panel strong {
+  color: #dcbfff;
+}
+
 .zoom-controls {
   position: fixed;
   top: 1em;
   right: 1em;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .zoom-controls button {
-  width: 2.5em;
-  height: 2.5em;
-  margin-bottom: 0.5em;
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 2em;
   background-color: #443d4b;
   color: #fff;
-  border: 1px solid #dcbfff;
-  border-radius: 50%;
-  font-size: 1.5em;
+  border: 1px #dcbfff solid;
   cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
 }
 
 .zoom-controls button:hover {
   background-color: #2e2a33;
 }
 
-.zoom-value {
-  font-size: 1.2em;
-  color: #dcbfff;
-  margin-top: 0.5em;
+/*Disabled button styling*/
+button:disabled {
+  background-color: #1d1a20;
+  border: 1px #443d4b solid;
+  cursor: default;
+  color: #333;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .country-name {
-    font-size: 1.5em;
-  }
-
-  .user-input,
-  .aiuser-input {
-    font-size: 0.9em;
-  }
-
-  .pivot-btn,
-  .aipivot-btn {
-    font-size: 0.9em;
-  }
-
-  .zoom-controls button {
-    width: 2em;
-    height: 2em;
-    font-size: 1.2em;
-  }
-
-  .zoom-value {
-    font-size: 1em;
-  }
+.zoom-out {
+  margin-bottom: 10px;
 }
