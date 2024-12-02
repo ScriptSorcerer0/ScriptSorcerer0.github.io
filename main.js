@@ -240,44 +240,76 @@ function selectOption(value) {
     }
   
     try {
+      // Step 1: Load NAICS data from NAICS.xlsx
+      const naicsResponse = await fetch("NAICS.xlsx");
+      const naicsBuffer = await naicsResponse.arrayBuffer();
+      const naicsWorkbook = XLSX.read(naicsBuffer, { type: "array" });
+      const naicsSheet = naicsWorkbook.Sheets[naicsWorkbook.SheetNames[0]];
+      const naicsData = XLSX.utils.sheet_to_json(naicsSheet);
+  
+      // Find the NAIC code entry
+      const naicsEntry = naicsData.find(row => String(row["NAIC"]).trim() === String(truncatedNaicCode).trim());
+
+      if (!naicsEntry) {
+        naicCodeOutput.innerText = "No matching NAIC code found in NAICS.xlsx.";
+        return;
+      }
+  
+      const industryDescription = naicsEntry["Description"];
+      console.log(`Found NAIC Code: ${truncatedNaicCode}, Description: ${industryDescription}`);
+  
+      // Step 2: Load country-specific Excel file
       const countryFilePath = `countries/${currentCountryName}.xlsx`;
       const countryResponse = await fetch(countryFilePath);
       if (!countryResponse.ok) {
         throw new Error(`Country file not found: ${countryFilePath}`);
       }
+  
       const countryBuffer = await countryResponse.arrayBuffer();
       const countryWorkbook = XLSX.read(countryBuffer, { type: "array" });
       const countrySheet = countryWorkbook.Sheets[countryWorkbook.SheetNames[0]];
       const countryData = XLSX.utils.sheet_to_json(countrySheet);
   
-      const matchingRows = countryData.filter(row => String(row["NAICS Code 2"]).trim() === truncatedNaicCode);
+      // Filter rows matching the truncated NAIC code in "NAICS Code 2"
+      const matchingRows = countryData.filter(row => String(row["NAICS Code 2"]).trim() === String(truncatedNaicCode));
   
       if (matchingRows.length === 0) {
         naicCodeOutput.innerText = `No matches found for NAIC Code ${truncatedNaicCode} in ${currentCountryName}.`;
         return;
       }
   
+      // Step 3: Find the top 3 "Final Pivot Score" values
       const topScores = matchingRows
         .map(row => ({
           score: parseFloat(row["Final Pivot Score"]),
           naicsCode1: row["NAICS Code 1"],
         }))
-        .filter(entry => !isNaN(entry.score))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3);
+        .filter(entry => !isNaN(entry.score)) // Exclude invalid scores
+        .sort((a, b) => b.score - a.score) // Sort by descending score
+        .slice(0, 3); // Take top 3 entries
   
+      if (topScores.length === 0) {
+        naicCodeOutput.innerText = `No valid pivot scores found for NAIC Code ${truncatedNaicCode}.`;
+        return;
+      }
+  
+      // Step 4: Add descriptions from NAICS.xlsx for "NAICS Code 1"
       const resultOutput = topScores.map(({ score, naicsCode1 }) => {
-        const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === naicsCode1);
+        const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
         const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
-        return `Score: ${score.toFixed(3)}, NAICS Code 1: ${naicsCode1}, Description: ${description}`;
+        return `Score: ${score.toFixed(3)}, NAICS:: ${naicsCode1}, Description: ${description}`;
       }).join("\n\n");
   
-      naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${truncatedNaicCode} in ${currentCountryName}:\n\n${resultOutput}`;
+      // Step 5: Display results
+      naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${truncatedNaicCode} (${industryDescription}) in ${currentCountryName}:\n\n${resultOutput}`;
+      console.log(`Top Pivot Scores:\n${resultOutput}`);
+  
     } catch (error) {
+      console.error("Error in submitAIPivot:", error);
       naicCodeOutput.innerText = `An error occurred: ${error.message}`;
-      console.error(error);
     }
   }
+  
   
   
   async function submitPivot() {
@@ -340,15 +372,20 @@ function selectOption(value) {
       }
   
       // Step 4: Add Descriptions from NAICS.xlsx
-    const resultOutput = topScores.map(({ score, naicsCode1 }) => {
-      const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
-      const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
-      return `Score: ${score.toFixed(3)}, NAICS Code 1: ${naicsCode1}, Description: ${description}`;
-    }).join("\n\n");
+      const resultOutput = topScores.map(({ score, naicsCode1 }) => {
+        const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
+        const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
+        return `Score: ${score.toFixed(3)}, NAICS: ${naicsCode1}, Description: ${description}`;
+      }).join("\n\n");
 
-    // Step 5: Output the results
-    naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${naicCode} in ${currentCountryName}:\n\n${resultOutput}`;
-    console.log(`Top Pivot Scores:\n${resultOutput}`);
+      // Step 5: Include Description of the Main NAIC Code
+      const mainDescriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicCode));
+      const mainDescription = mainDescriptionEntry ? mainDescriptionEntry["Description"] : "Description not found";
+
+      // Output the results
+      naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:\n\n${resultOutput}`;
+      console.log(`Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}):\n${resultOutput}`);
+
 
   } catch (error) {
     console.error("Error in submitPivot:", error);
@@ -359,30 +396,32 @@ function selectOption(value) {
   // Prompt for API key on page load
   let apiKey = "";
 
+
+
+async function getAPI(){
+    apiKey = prompt("Please enter your OpenAI API key:");
+    console.log("API Key received and set:", apiKey);
+
+    }
+
+
 window.addEventListener("load", async () => {
   // Load industries immediately, regardless of API key
   loadIndustries();
   await loadNAICSData();
-
-  // Prompt for API key and handle AI-specific input visibility
-  setTimeout(() => {
-    apiKey = prompt("Please enter your OpenAI API key:");
-    if (!apiKey || apiKey.trim() === "") {
-      alert("API key is required for AI-related functionality.");
-      console.warn("No API key provided. Hiding AI-related input.");
-      
-      // Hide only the AI-related input
-      const aiInputSection = document.getElementById("ai-input-section");
-      if (aiInputSection) aiInputSection.classList.add("hidden");
-      
-      return;
-    }
-
-    console.log("API Key received and set:", apiKey);
-
-    // Show the AI-related input if the API key is provided
+  getAPI()
+  if(apiKey){
     const aiInputSection = document.getElementById("ai-input-section");
-    if (aiInputSection) aiInputSection.classList.remove("hidden");
-    console.log('yes')
-  }, 200); // Use a small delay to ensure the DOM is completely loaded
-});
+    aiInputSection.classList.remove("hidden");
+  }
+  if (!apiKey || apiKey.trim() === "") {
+    alert("API key is required for AI-related functionality.");
+    console.warn("No API key provided. Hiding AI-related input.");
+    
+    // Hide only the AI-related input
+    const aiInputSection = document.getElementById("ai-input-section");
+    if (aiInputSection) 
+    return;
+
+  
+}});
