@@ -1,6 +1,9 @@
 body {
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #fff;
+  background-color: #151218;
+  margin: 0;
+  padding: 0;
 }
 
 * {
@@ -76,6 +79,10 @@ path:hover {
 .side-panel .container {
   padding-block: 2em;
   transition: 200ms ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Horizontally center items */
+  justify-content: center; /* Vertically center items */
 }
 
 /*Dynamic classes for JavaScript*/
@@ -179,4 +186,101 @@ button:disabled {
 
 .zoom-out {
   margin-bottom: 10px;
+}
+
+.pivot-btn,
+.aipivot-btn {
+  display: inline-block;
+  width: 50%;
+  padding: 0.8em, 2em;
+  font-size: 1em;
+  border: none;
+  border-radius: 50px;
+  background-color: #443d4b;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  margin-top: 1em;
+  margin-left: 4em;
+}
+
+.pivot-btn:hover,
+.aipivot-btn:hover {
+  background-color: #c99aff;
+}
+/* NAIC Code Output */
+.naic-code {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 1em;
+  color: #ffffff;
+}
+
+/* Loading */
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #dcbfff;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .country-name {
+    font-size: 1.5em;
+  }
+
+  .user-input,
+  .aiuser-input {
+    font-size: 0.9em;
+  }
+
+  .pivot-btn,
+  .aipivot-btn {
+    font-size: 0.9em;
+  }
+
+  .zoom-controls button {
+    width: 2em;
+    height: 2em;
+    font-size: 1.2em;
+  }
+
+  .zoom-value {
+    font-size: 1em;
+  }
+}
+
+/* Dropdown */
+.dropdown {
+  top: 100%; /* Place it directly below the input field */
+  left: 0;
+  width: 100%; /* Match the width of the input field */
+  max-height: 150px;
+  overflow-y: auto; /* Allow scrolling if options exceed max height */
+  background-color: #2d2733;
+  border: 1px solid #555;
+  border-radius: 5px;
+  z-index: 10;
+}
+
+/* Show the dropdown when active */
+.dropdown.active {
+  display: block;
+}
+
+/* Dropdown options */
+.dropdown option {
+  padding: 0.5em;
+  font-size: 1em;
+  color: #fff;
+  background-color: #2d2733;
+  cursor: pointer;
+}
+
+/* Hover effect for dropdown options */
+.dropdown option:hover {
+  background-color: #443d4b;
 }
