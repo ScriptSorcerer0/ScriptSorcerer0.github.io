@@ -74,7 +74,7 @@
           <div class="result">
             <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
             <p><strong>Final Pivot Score:</strong> ${row["Industry Similarity"]}</p>
-            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
+            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"] || "Undefined"}</p>
           </div>
         `).join("");
 
