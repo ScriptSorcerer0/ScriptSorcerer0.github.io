@@ -55,8 +55,10 @@
 
         const countryData = await response.json();
 
+        // Filter rows for the given NAICS CodeR
         // Filter rows for the given NAICS Code
-        const filteredData = countryData.filter(row => String(row["NAICS Code 2"]).trim() === String(naics_code).trim());
+        const filteredData = countryData.filter(row => String(row["NAICS Code 1"]).trim() === String(naics_code).trim());
+
 
         // Sort by Final Pivot Score and get the top 5
         const sortedData = filteredData
