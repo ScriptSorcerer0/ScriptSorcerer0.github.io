@@ -55,33 +55,32 @@
 
         const countryData = await response.json();
 
-        // Filter rows for the given NAICS Code
-        // Filter rows for the given NAICS Code
-        const filteredData = countryData.filter(row => String(row["NAICS Code 2"]).trim() === String(naics_code).trim());
+        // Ensure the key (NAICS Code 2) exists in the data
+        if (!(naics_code in countryData)) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
+        }
 
+        // Get rows for the given NAICS Code 2
+        const rows = countryData[naics_code];
 
-        // Sort by Final Pivot Score and get the top 5
-        const sortedData = filteredData
-          .sort((a, b) => b["Industry Similarity"] - a["Industry Similarity"])
-          .slice(0, 5);
-
-        // Check if results exist
-        if (sortedData.length === 0) {
+        // Check if rows exist
+        if (!rows || rows.length === 0) {
           output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
           return;
         }
 
         // Create result display
-        const resultsHtml = sortedData.map(row => `
+        const resultsHtml = rows.map(row => `
           <div class="result">
             <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
-            <p><strong>Final Pivot Score:</strong> ${row["Industry Similarity"]}</p>
-            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"] || "Undefined"}</p>
+            <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"]}</p>
+            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
           </div>
         `).join("");
 
         output.innerHTML = `
-          <h2>Results for ${country} (NAICS Code: ${naics_code})</h2>
+          <h2>Results for ${country} (NAICS Code 2: ${naics_code})</h2>
           ${resultsHtml}
         `;
       } catch (error) {
