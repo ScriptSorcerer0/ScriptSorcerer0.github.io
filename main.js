@@ -374,7 +374,7 @@ function selectOption(value) {
         return;
       }
         // Step 4: Add Descriptions from NAICS.xlsx
-      const resultOutput = topScores.map(({ score, naicsCode1 }) => {
+      const resultOutput = topScores.map(({ score, naicsCode1, ratio }) => {
         const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
         const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
         
