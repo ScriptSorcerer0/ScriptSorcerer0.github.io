@@ -134,7 +134,6 @@ function selectOption(value) {
         const data = await response.json();
         countryNameOutput.innerText = data[0].name.common;
         countryFlagOutput.src = data[0].flags.png;
-        cityOutput.innerText = data[0].capital || "N/A";
         loading.classList.add("hide");
         container.classList.remove("hide");
       } catch (error) {
