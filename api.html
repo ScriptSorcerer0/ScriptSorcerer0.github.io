@@ -32,6 +32,21 @@
       };
     }
 
+    // Function to load NAICS descriptions from the Excel file
+    async function loadNaicsDescriptions() {
+      const response = await fetch('path_to/NAICS.xlsx');
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(sheet);
+
+      const naicsMap = {};
+      data.forEach(row => {
+        naicsMap[row["NAIC"]] = row["Description"];
+      });
+      return naicsMap;
+    }
+
     // Function to fetch and display data
     async function fetchData() {
       const { country, naics_code } = getQueryParams();
@@ -44,60 +59,63 @@
       }
 
       try {
-  // URL for the country's JSON file
-  const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
+        // Load NAICS descriptions
+        const naicsDescriptions = await loadNaicsDescriptions();
 
-  // Fetch the country's JSON file
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Country '${country}' not found or failed to load.`);
-  }
+        // URL for the country's JSON file
+        const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
 
-  const countryData = await response.json();
+        // Fetch the country's JSON file
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Country '${country}' not found or failed to load.`);
+        }
 
-  // Check if NAICS Code 2 exists in the data
-  if (!countryData[naics_code]) {
-    output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-    return;
-  }
+        const countryData = await response.json();
 
-  // Get rows for the matching NAICS Code 2
-  const rows = countryData[naics_code];
+        // Check if NAICS Code 2 exists in the data
+        if (!countryData[naics_code]) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
+        }
 
-  // Check if rows exist
-  if (!rows || rows.length === 0) {
-    output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-    return;
-  }
+        // Get rows for the matching NAICS Code 2
+        const rows = countryData[naics_code];
 
- // Sort rows by NAICS Code 1 in descending order and get the top 5
-const topRows = rows
-  .sort((a, b) => b["Industry Similarity"] - a["Industry Similarity"]) // Sort by NAICS Code 1 descending
-  .slice(0, 5); // Take the top 5 rows
+        // Check if rows exist
+        if (!rows || rows.length === 0) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
+        }
 
-// Create result display for top rows with rounded values
-const resultsHtml = topRows.map(row => `
-  <div class="result">
-    <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
-    <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"].toFixed(4)}</p>
-    <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"].toFixed(4)}</p>
-  </div>
-`).join("");
+        // Sort rows by NAICS Code 1 in descending order and get the top 5
+        const topRows = rows
+          .sort((a, b) => b["Industry Similarity"] - a["Industry Similarity"]) // Sort by Industry Similarity descending
+          .slice(0, 5); // Take the top 5 rows
 
-output.innerHTML = `
-  <h2>Top 5 Results for ${country} (NAICS Code 2: ${naics_code})</h2>
-  ${resultsHtml}
-`;
+        // Create result display for top rows with rounded values
+        const resultsHtml = topRows.map(row => `
+          <div class="result">
+            <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
+            <p><strong>Industry Description:</strong> ${naicsDescriptions[row["NAICS Code 1"]] || "No description available"}</p>
+            <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"].toFixed(4)}</p>
+            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"].toFixed(4)}</p>
+          </div>
+        `).join("");
 
-} catch (error) {
-  output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-  console.error(error);
-}
-
+        output.innerHTML = `
+          <h2>Top 5 Results for ${country} (NAICS Code 2: ${naics_code})</h2>
+          ${resultsHtml}
+        `;
+      } catch (error) {
+        output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        console.error(error);
+      }
     }
 
     // Fetch data on page load
     fetchData();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
