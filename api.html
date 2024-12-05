@@ -60,7 +60,7 @@
 
         // Sort by Final Pivot Score and get the top 5
         const sortedData = filteredData
-          .sort((a, b) => b["Final Pivot Score"] - a["Final Pivot Score"])
+          .sort((a, b) => b["Industry Similarity Score"] - a["Industry Similarity Score"])
           .slice(0, 5);
 
         // Check if results exist
@@ -73,7 +73,8 @@
         const resultsHtml = sortedData.map(row => `
           <div class="result">
             <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
-            <p><strong>Final Pivot Score:</strong> ${row["Final Pivot Score"]}</p>
+            <p><strong>Final Pivot Score:</strong> ${row["Industry Similarity"]}</p>
+            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
           </div>
         `).join("");
 
