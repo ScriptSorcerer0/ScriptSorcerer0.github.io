@@ -68,6 +68,8 @@
           output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
           return;
         }
+        console.log("Row Data:", row);
+        console.log("Production Capacity Ratio:", row["Production Capacity Ratio"]);
 
         // Create result display
         const resultsHtml = sortedData.map(row => `
