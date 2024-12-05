@@ -281,7 +281,7 @@ function selectOption(value) {
       // Step 3: Find the top 3 "Final Pivot Score" values
       const topScores = matchingRows
         .map(row => ({
-          score: parseFloat(row["Final Pivot Score"]),
+          score: parseFloat(row["Industry Similarity"]),
           naicsCode1: row["NAICS Code 1"],
         }))
         .filter(entry => !isNaN(entry.score)) // Exclude invalid scores
