@@ -61,7 +61,7 @@
       try {
         // Load NAICS descriptions
         const naicsDescriptions = await loadNaicsDescriptions();
-
+        const naicsCode2Description = naicsDescriptions[naics_code] || "No description available";
         // URL for the country's JSON file
         const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
 
@@ -104,7 +104,7 @@
         `).join("");
 
         output.innerHTML = `
-          <h2>Top 5 Results for ${country}, NAICS Code 2: ${naics_code}, Industry: ${naicsDescriptions[row["NAICS Code 1"]]}</h2>
+          <h2>Top 5 Results for ${country}, NAICS Code: ${naics_code}, Industry Description: ${naicsCode2Description}</h2>
           ${resultsHtml}
         `;
       } catch (error) {
