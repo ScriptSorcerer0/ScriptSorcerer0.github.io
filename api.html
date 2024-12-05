@@ -55,40 +55,34 @@
 
         const countryData = await response.json();
 
-        // Check if JSON is an array
-        if (Array.isArray(countryData)) {
-          // Find the entry matching the NAICS Code 2
-          const entry = countryData.find(item => String(item["NAICS Code 2"]).trim() === String(naics_code).trim());
-          if (!entry) {
-            output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-            return;
-          }
-
-          // Get rows for the matching NAICS Code 2
-          const rows = entry.rows;
-
-          // Check if rows exist
-          if (!rows || rows.length === 0) {
-            output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-            return;
-          }
-
-          // Create result display
-          const resultsHtml = rows.map(row => `
-            <div class="result">
-              <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
-              <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"]}</p>
-              <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
-            </div>
-          `).join("");
-
-          output.innerHTML = `
-            <h2>Results for ${country} (NAICS Code 2: ${naics_code})</h2>
-            ${resultsHtml}
-          `;
-        } else {
-          output.innerHTML = `<p>Unexpected JSON structure for country ${country}. Expected an array.</p>`;
+        // Check if NAICS Code 2 exists in the data
+        if (!countryData[naics_code]) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
         }
+
+        // Get rows for the matching NAICS Code 2
+        const rows = countryData[naics_code];
+
+        // Check if rows exist
+        if (!rows || rows.length === 0) {
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          return;
+        }
+
+        // Create result display
+        const resultsHtml = rows.map(row => `
+          <div class="result">
+            <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
+            <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"]}</p>
+            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
+          </div>
+        `).join("");
+
+        output.innerHTML = `
+          <h2>Results for ${country} (NAICS Code 2: ${naics_code})</h2>
+          ${resultsHtml}
+        `;
       } catch (error) {
         output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
         console.error(error);
