@@ -253,8 +253,6 @@ function selectOption(value) {
         naicCodeOutput.innerText = "No matching NAIC code found in NAICS.xlsx.";
         return;
       }
-      console.log("Truncated NAIC Code:", truncatedNaicCode);
-      console.log("Country Data:", countryData);
 
       const industryDescription = naicsEntry["Description"];
       console.log(`Found NAIC Code: ${truncatedNaicCode}, Description: ${industryDescription}`);
@@ -287,7 +285,7 @@ function selectOption(value) {
         }))
         .filter(entry => !isNaN(entry.score)) // Exclude invalid scores
         .sort((a, b) => b.score - a.score) // Sort by descending score
-        .slice(0, 3); // Take top 3 entries
+        .slice(0, 5); // Take top 5 entries
   
       if (topScores.length === 0) {
         naicCodeOutput.innerText = `No valid pivot scores found for NAIC Code ${truncatedNaicCode}.`;
@@ -298,7 +296,7 @@ function selectOption(value) {
       const resultOutput = topScores.map(({ score, naicsCode1 }) => {
         const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
         const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
-        return `Score: ${score.toFixed(3)}, NAICS:: ${naicsCode1}, Description: ${description}`;
+        return `Industry Similarity: ${score.toFixed(3)}, NAICS:: ${naicsCode1}, Description: ${description}`;
       }).join("\n\n");
   
       // Step 5: Display results
@@ -368,28 +366,36 @@ function selectOption(value) {
         }))
         .filter(entry => !isNaN(entry.score)) // Ensure valid scores
         .sort((a, b) => b.score - a.score) // Sort in descending order
-        .slice(0, 3); // Take the top 3
+        .slice(0, 5); // Take the top 3
   
       if (topScores.length === 0) {
         naicCodeOutput.innerText = `No valid pivot scores found for NAIC Code ${naicCode}.`;
         return;
       }
-  
-      // Step 4: Add Descriptions from NAICS.xlsx
+        // Step 4: Add Descriptions from NAICS.xlsx
       const resultOutput = topScores.map(({ score, naicsCode1 }) => {
         const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
         const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
-        return `Score: ${score.toFixed(3)}, NAICS: ${naicsCode1}, Description: ${description}`;
-      }).join("\n\n");
+
+        // Wrap each entry in a styled format
+        return `
+          <p><strong>Industry Similarity:</strong> ${score.toFixed(3)}</p>
+          <p><strong>NAICS:</strong> ${naicsCode1}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <hr>
+        `;
+      }).join("");
 
       // Step 5: Include Description of the Main NAIC Code
       const mainDescriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicCode));
       const mainDescription = mainDescriptionEntry ? mainDescriptionEntry["Description"] : "Description not found";
 
-      // Output the results
-      naicCodeOutput.innerText = `Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:\n\n${resultOutput}`;
+      // Output the results with bolded header
+      naicCodeOutput.innerHTML = `
+        <p><strong>Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:</strong></p>
+        ${resultOutput}
+      `;
       console.log(`Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}):\n${resultOutput}`);
-
 
   } catch (error) {
     console.error("Error in submitPivot:", error);
