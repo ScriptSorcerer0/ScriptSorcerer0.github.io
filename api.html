@@ -44,49 +44,55 @@
       }
 
       try {
-        // URL for the country's JSON file
-        const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
+  // URL for the country's JSON file
+  const url = `https://scriptsorcerer0.github.io/countriesjson/${country}.json`;
 
-        // Fetch the country's JSON file
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Country '${country}' not found or failed to load.`);
-        }
+  // Fetch the country's JSON file
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Country '${country}' not found or failed to load.`);
+  }
 
-        const countryData = await response.json();
+  const countryData = await response.json();
 
-        // Check if NAICS Code 2 exists in the data
-        if (!countryData[naics_code]) {
-          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-          return;
-        }
+  // Check if NAICS Code 2 exists in the data
+  if (!countryData[naics_code]) {
+    output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+    return;
+  }
 
-        // Get rows for the matching NAICS Code 2
-        const rows = countryData[naics_code];
+  // Get rows for the matching NAICS Code 2
+  const rows = countryData[naics_code];
 
-        // Check if rows exist
-        if (!rows || rows.length === 0) {
-          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
-          return;
-        }
+  // Check if rows exist
+  if (!rows || rows.length === 0) {
+    output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+    return;
+  }
 
-        // Create result display
-        const resultsHtml = rows.map(row => `
-          <div class="result">
-            <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
-            <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"]}</p>
-            <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
-          </div>
-        `).join("");
+  // Sort rows by NAICS Code 1 in descending order and get the top 5
+  const topRows = rows
+    .sort((a, b) => b["NAICS Code 1"] - a["NAICS Code 1"]) // Sort by NAICS Code 1 descending
+    .slice(0, 5); // Take the top 5 rows
 
-        output.innerHTML = `
-          <h2>Results for ${country} (NAICS Code 2: ${naics_code})</h2>
-          ${resultsHtml}
-        `;
-      } catch (error) {
-        output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-        console.error(error);
-      }
+  // Create result display for top rows
+  const resultsHtml = topRows.map(row => `
+    <div class="result">
+      <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
+      <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"]}</p>
+      <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"]}</p>
+    </div>
+  `).join("");
+
+  output.innerHTML = `
+    <h2>Top 5 Results for ${country} (NAICS Code 2: ${naics_code})</h2>
+    ${resultsHtml}
+  `;
+} catch (error) {
+  output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+  console.error(error);
+}
+
     }
 
     // Fetch data on page load
