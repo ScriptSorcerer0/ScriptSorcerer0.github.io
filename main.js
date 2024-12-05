@@ -381,7 +381,7 @@ function selectOption(value) {
 
         // Wrap each entry in a styled format
         return `
-          <p><strong>Industry Similarity:</strong> ${score.toFixed(3)}</p>
+          <p><strong>Industry Similarity: ${score.toFixed(3)}</strong></p>
           <p><strong>Production Capacity Ratio:</strong> ${ratio.toFixed(3)}</p>
           <p><strong>NAICS:</strong> ${naicsCode1}</p>
           <p><strong>Description:</strong> ${description}</p>
