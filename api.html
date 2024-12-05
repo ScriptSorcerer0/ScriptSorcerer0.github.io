@@ -98,7 +98,7 @@
           <div class="result">
             <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
             <p><strong>Industry Description:</strong> ${naicsDescriptions[row["NAICS Code 1"]] || "No description available"}</p>
-            <p><strong>Industry Similarity:</strong> ${row["Industry Similarity"].toFixed(4)}</p>
+            <p><strong>Industry Similarity: ${row["Industry Similarity"].toFixed(4)}</strong></p>
             <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"].toFixed(4)}</p>
           </div>
           <hr>
