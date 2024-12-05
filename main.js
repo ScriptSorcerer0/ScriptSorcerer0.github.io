@@ -351,7 +351,7 @@ function selectOption(value) {
   
       // Filter rows matching the NAIC code in "NAICS Code 2"
       const matchingRows = countryData.filter(row =>
-        String(row["NAICS Code 2"]).trim() === String(truncatedNaicCode).trim()
+        String(row["NAICS Code 2"]).trim() === String(naicCode).trim()
       );
       console.log("Filtered Rows:", matchingRows);
         
