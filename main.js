@@ -427,7 +427,7 @@ window.addEventListener("load", async () => {
     aiInputSection.classList.remove("hidden");
   }
   if (!apiKey || apiKey.trim() === "") {
-    alert("API key is required for AI-related functionality.");
+    //alert("API key is required for AI-related functionality.");
     console.warn("No API key provided. Hiding AI-related input.");
     
     // Hide only the AI-related input
