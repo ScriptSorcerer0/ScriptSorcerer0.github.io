@@ -394,7 +394,9 @@ function selectOption(value) {
       const mainDescription = mainDescriptionEntry ? mainDescriptionEntry["Description"] : "Description not found";
       // Output the results with bolded header
       naicCodeOutput.innerHTML = `
-        <p><strong>Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:\n\n</strong></p>
+        <p><strong>Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:</strong></p>
+        <br>
+        <br>
         ${resultOutput}
       `;
       console.log(`Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}):\n${resultOutput}`);
