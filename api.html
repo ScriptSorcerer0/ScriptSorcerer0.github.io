@@ -96,7 +96,7 @@
         // Create result display for top rows with rounded values
         const resultsHtml = topRows.map(row => `
           <div class="result">
-            <p><strong>NAICS Code 1:</strong> ${row["NAICS Code 1"]}</p>
+            <p><strong>Pivoting NAICS Code :</strong> ${row["NAICS Code 1"]}</p>
             <p><strong>Industry Description:</strong> ${naicsDescriptions[row["NAICS Code 1"]] || "No description available"}</p>
             <p><strong>Industry Similarity: ${row["Industry Similarity"].toFixed(4)}</strong></p>
             <p><strong>Production Capacity Ratio:</strong> ${row["Production Capacity Ratio"].toFixed(4)}</p>
