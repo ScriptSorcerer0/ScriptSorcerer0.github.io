@@ -363,10 +363,11 @@ function selectOption(value) {
         .map(row => ({
           score: parseFloat(row["Industry Similarity"]),
           naicsCode1: row["NAICS Code 1"],
+          ratio: parseFloat(row["Production Capacity Ratio"])
         }))
         .filter(entry => !isNaN(entry.score)) // Ensure valid scores
         .sort((a, b) => b.score - a.score) // Sort in descending order
-        .slice(0, 5); // Take the top 3
+        .slice(0, 3); // Take the top 3
   
       if (topScores.length === 0) {
         naicCodeOutput.innerText = `No valid pivot scores found for NAIC Code ${naicCode}.`;
@@ -376,10 +377,12 @@ function selectOption(value) {
       const resultOutput = topScores.map(({ score, naicsCode1 }) => {
         const descriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicsCode1));
         const description = descriptionEntry ? descriptionEntry["Description"] : "Description not found";
+        
 
         // Wrap each entry in a styled format
         return `
           <p><strong>Industry Similarity:</strong> ${score.toFixed(3)}</p>
+          <p><strong>Production Capacity Ratio:</strong> ${ratio.toFixed(3)}</p>
           <p><strong>NAICS:</strong> ${naicsCode1}</p>
           <p><strong>Description:</strong> ${description}</p>
           <hr>
@@ -389,10 +392,9 @@ function selectOption(value) {
       // Step 5: Include Description of the Main NAIC Code
       const mainDescriptionEntry = naicsData.find(row => String(row["NAIC"]) === String(naicCode));
       const mainDescription = mainDescriptionEntry ? mainDescriptionEntry["Description"] : "Description not found";
-
       // Output the results with bolded header
       naicCodeOutput.innerHTML = `
-        <p><strong>Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:</strong></p>
+        <p><strong>Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}) in ${currentCountryName}:\n\n</strong></p>
         ${resultOutput}
       `;
       console.log(`Top Pivot Scores for NAIC Code ${naicCode} (${mainDescription}):\n${resultOutput}`);
@@ -419,7 +421,7 @@ window.addEventListener("load", async () => {
   // Load industries immediately, regardless of API key
   loadIndustries();
   await loadNAICSData();
-  getAPI()
+  apiKey=""
   if(apiKey){
     const aiInputSection = document.getElementById("ai-input-section");
     aiInputSection.classList.remove("hidden");
