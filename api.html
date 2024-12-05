@@ -104,7 +104,7 @@
         `).join("");
 
         output.innerHTML = `
-          <h2>Top 5 Results for ${country} (NAICS Code 2: ${naics_code})</h2>
+          <h2>Top 5 Results for ${country}, NAICS Code 2: ${naics_code}, Industry: ${naicsDescriptions[row["NAICS Code 1"]]}</h2>
           ${resultsHtml}
         `;
       } catch (error) {
