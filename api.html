@@ -72,7 +72,7 @@
 
   // Sort rows by NAICS Code 1 in descending order and get the top 5
   const topRows = rows
-    .sort((a, b) => b["NAICS Code 1"] - a["NAICS Code 1"]) // Sort by NAICS Code 1 descending
+    .sort((a, b) => b["Industry Similarity"] - a["Industry Similarity"]) // Sort by NAICS Code 1 descending
     .slice(0, 5); // Take the top 5 rows
 
   // Create result display for top rows
