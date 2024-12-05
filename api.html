@@ -34,7 +34,7 @@
 
     // Function to load NAICS descriptions from the Excel file
     async function loadNaicsDescriptions() {
-      const response = await fetch('path_to/NAICS.xlsx');
+      const response = await fetch('NAICS.xlsx');
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
