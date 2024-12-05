@@ -60,7 +60,7 @@
 
         // Sort by Final Pivot Score and get the top 5
         const sortedData = filteredData
-          .sort((a, b) => b["Industry Similarity Score"] - a["Industry Similarity Score"])
+          .sort((a, b) => b["Industry Similarity"] - a["Industry Similarity"])
           .slice(0, 5);
 
         // Check if results exist
