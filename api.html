@@ -55,9 +55,13 @@
 
         const countryData = await response.json();
 
+        // Debugging: Log the country data and NAICS code
+        console.log("Country Data:", countryData);
+        console.log("NAICS Code 2 Query:", naics_code);
+
         // Ensure the key (NAICS Code 2) exists in the data
         if (!(naics_code in countryData)) {
-          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}.</p>`;
+          output.innerHTML = `<p>No matches found for NAICS Code ${naics_code} in ${country}. Available keys: ${Object.keys(countryData).join(", ")}.</p>`;
           return;
         }
 
